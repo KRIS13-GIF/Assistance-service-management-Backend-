@@ -1,4 +1,8 @@
 package com.example.sabanet.enumerations;
 
-public class PersonelType {
+public enum PersonelType {
+
+    ACCEPTANCE,
+    TECHNICIANS
+
 }
