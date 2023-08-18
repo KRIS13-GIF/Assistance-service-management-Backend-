@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order {
+public class Ordering {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -20,4 +20,6 @@ public class Order {
 
     @ManyToOne
     private Customer customer;
+
+    private int fileNumber;
 }
