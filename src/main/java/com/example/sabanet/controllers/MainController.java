@@ -62,5 +62,14 @@ public class MainController {
 
     }
 
+    @PutMapping("/addTechnic/{id1}/{id2}")
+    public void addTechnic(
+            @PathVariable String id1,
+            @PathVariable String id2
+    )throws Exception{
+        orderServices.addTechnicToOrder(id1,id2);
+    }
+
+
     }
 

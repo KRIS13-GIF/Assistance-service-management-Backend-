@@ -19,6 +19,8 @@ public class Product {
     @ManyToOne
     private Customer customer;
 
+
+
     private String serialNo;
     private String brand;
     private String template;
@@ -36,7 +38,9 @@ public class Product {
     private String pec;
     private int fileNum;
 
-    private boolean accept;
+    private boolean accept; // acceptance
+    private boolean completed; // technicians
+
 
 
 }

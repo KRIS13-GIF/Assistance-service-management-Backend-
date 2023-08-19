@@ -2,16 +2,20 @@ package com.example.sabanet.services;
 
 import com.example.sabanet.entities.Customer;
 import com.example.sabanet.entities.Ordering;
+import com.example.sabanet.entities.Personel;
 import com.example.sabanet.entities.Product;
+import com.example.sabanet.enumerations.PersonelType;
 import com.example.sabanet.models.FileName;
 import com.example.sabanet.models.OrderResponse;
 import com.example.sabanet.repositories.CustomerRepository;
 import com.example.sabanet.repositories.OrderRepository;
+import com.example.sabanet.repositories.PersonelRepository;
 import com.example.sabanet.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Optional;
 
 @Service
 public class OrderServices {
@@ -21,14 +25,22 @@ public class OrderServices {
     private  final ProductRepository productRepository;
     private final ProductServices productServices;
 
+    private final PersonelRepository personelRepository;
+
     private final CustomerServices customerServices;
 
-    public OrderServices(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, ProductServices productServices, CustomerServices customerServices) {
+    public OrderServices(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, ProductServices productServices, PersonelRepository personelRepository, CustomerServices customerServices) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.productServices = productServices;
+        this.personelRepository = personelRepository;
         this.customerServices = customerServices;
+    }
+
+
+    public Ordering findOrder(String id){
+        return orderRepository.findById(id).get();
     }
 
     public OrderResponse acceptProduct(String id, FileName fileName) throws Exception {
@@ -95,6 +107,25 @@ public class OrderServices {
             Ordering savedOrder = orderRepository.save(order);
             OrderResponse response = new OrderResponse(savedOrder.getId());
             return response;
+
+    }
+
+    public void addTechnicToOrder(String id1, String id2){
+        Optional<Ordering> order=orderRepository.findById(id1);
+        Ordering ordering=order.get();
+
+        Optional<Personel> personel=personelRepository.findById(id2);
+        Personel personel1=personel.get();
+
+        System.out.println(personel1.getName());
+        if (personel1.getType()== PersonelType.TECHNICIANS) {
+            ordering.setPersonel(personel1);
+            orderRepository.save(ordering);
+            System.out.println("Technic added to order");
+        }
+        else {
+            System.out.println("Nothing ");
+        }
 
     }
 

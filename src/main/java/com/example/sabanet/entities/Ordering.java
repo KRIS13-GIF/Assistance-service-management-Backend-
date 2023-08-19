@@ -21,5 +21,11 @@ public class Ordering {
     @ManyToOne
     private Customer customer;
 
+    @ManyToOne
+    private Personel personel;
+
     private int fileNumber;
+    private boolean repaired;
+
+
 }
