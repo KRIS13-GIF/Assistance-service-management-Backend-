@@ -31,53 +31,70 @@ public class OrderServices {
         this.customerServices = customerServices;
     }
 
-    public OrderResponse acceptProduct(String id, FileName fileName){
+    public OrderResponse acceptProduct(String id, FileName fileName) throws Exception {
         Product product=productServices.findProduct(id);
         if (product.isAccept()){
             System.out.println("The product is already been accepted");
+            throw new Exception("The product is accedpted !");
         }
+
+
         Customer customer=customerServices.findCustomer(product.getCustomer().getId());
-        customer.setNrFile(customer.getNrFile()+1);
-        customerRepository.save(customer);
-
-        product.setAccept(true);
-        product.setFileNum(customer.getNrFile());
-        productRepository.save(product);
 
 
-        String productInfo = "Product Information:\n" +
-                "Serial Number: " + product.getSerialNo() + "\n" +
-                "Brand: " + product.getBrand() + "\n" +
-                "Template: " + product.getTemplate() + "\n" +
-                "Description: " + product.getDescription() + "\n" +
-                "Date Purchase: " + product.getDatePurchase() + "\n" +
-                "Expiry Date: " + product.getExpiryDate() + "\n" +
-                "Notes: " + product.getNotes() + "\n" +
-                "Customer Name: " + product.getCustomerName() + "\n" +
-                "Full Address: " + product.getFullAddress() + "\n" +
-                "Telephone Number: " + product.getTelephoneNumber() + "\n" +
-                "Email: " + product.getEmail() + "\n" +
-                "Fiscal Code: " + product.getFiscalCode() + "\n" +
-                "VAT Number: " + product.getVatNumber() + "\n" +
-                "PEC: " + product.getPec() + "\n" +
-                "Accept: " + product.isAccept() + "\n"+
-                "File NO: "+ product.getFileNum();
 
-        try (FileWriter fileWriter = new FileWriter(fileName.getName())) {
-            fileWriter.write(productInfo);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // Check if the intervention has been done
+
+        if (customerRepository.existsByInterventIsFalseAndId(customer.getId())){
+
+            throw new Exception("You can not make an order if you have not done previously the intervention");
+            //System.out.println("You can not make an order if you have not done previously the intervention");
+            //System.out.println(customer);
+
         }
 
-        Ordering order=new Ordering();
-        order.setCustomer(product.getCustomer());
-        order.setProduct(product);
-        order.setFileNumber(customer.getNrFile());
+        else
+            customer.setNrFile(customer.getNrFile() + 1);
+            customerRepository.save(customer);
+
+            product.setAccept(true);
+            product.setFileNum(customer.getNrFile());
+            productRepository.save(product);
 
 
-        Ordering savedOrder=orderRepository.save(order);
-        OrderResponse response=new OrderResponse(savedOrder.getId());
-        return response;
+            String productInfo = "Product Information:\n" +
+                    "Serial Number: " + product.getSerialNo() + "\n" +
+                    "Brand: " + product.getBrand() + "\n" +
+                    "Template: " + product.getTemplate() + "\n" +
+                    "Description: " + product.getDescription() + "\n" +
+                    "Date Purchase: " + product.getDatePurchase() + "\n" +
+                    "Expiry Date: " + product.getExpiryDate() + "\n" +
+                    "Notes: " + product.getNotes() + "\n" +
+                    "Customer Name: " + product.getCustomerName() + "\n" +
+                    "Full Address: " + product.getFullAddress() + "\n" +
+                    "Telephone Number: " + product.getTelephoneNumber() + "\n" +
+                    "Email: " + product.getEmail() + "\n" +
+                    "Fiscal Code: " + product.getFiscalCode() + "\n" +
+                    "VAT Number: " + product.getVatNumber() + "\n" +
+                    "PEC: " + product.getPec() + "\n" +
+                    "Accept: " + product.isAccept() + "\n" +
+                    "File NO: " + product.getFileNum();
+
+            try (FileWriter fileWriter = new FileWriter(fileName.getName())) {
+                fileWriter.write(productInfo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            Ordering order = new Ordering();
+            order.setCustomer(product.getCustomer());
+            order.setProduct(product);
+            order.setFileNumber(customer.getNrFile());
+
+
+            Ordering savedOrder = orderRepository.save(order);
+            OrderResponse response = new OrderResponse(savedOrder.getId());
+            return response;
 
     }
 
