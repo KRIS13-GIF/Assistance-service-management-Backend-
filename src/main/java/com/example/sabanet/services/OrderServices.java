@@ -1,16 +1,12 @@
 package com.example.sabanet.services;
 
-import com.example.sabanet.entities.Customer;
-import com.example.sabanet.entities.Ordering;
-import com.example.sabanet.entities.Personel;
-import com.example.sabanet.entities.Product;
+import com.example.sabanet.entities.*;
 import com.example.sabanet.enumerations.PersonelType;
 import com.example.sabanet.models.FileName;
+import com.example.sabanet.models.FinishRequest;
+import com.example.sabanet.models.FinishResponse;
 import com.example.sabanet.models.OrderResponse;
-import com.example.sabanet.repositories.CustomerRepository;
-import com.example.sabanet.repositories.OrderRepository;
-import com.example.sabanet.repositories.PersonelRepository;
-import com.example.sabanet.repositories.ProductRepository;
+import com.example.sabanet.repositories.*;
 import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
@@ -26,15 +22,17 @@ public class OrderServices {
     private final ProductServices productServices;
 
     private final PersonelRepository personelRepository;
+    private final FinishRepository finishRepository;
 
     private final CustomerServices customerServices;
 
-    public OrderServices(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, ProductServices productServices, PersonelRepository personelRepository, CustomerServices customerServices) {
+    public OrderServices(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository, ProductServices productServices, PersonelRepository personelRepository, FinishRepository finishRepository, CustomerServices customerServices) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
         this.productServices = productServices;
         this.personelRepository = personelRepository;
+        this.finishRepository = finishRepository;
         this.customerServices = customerServices;
     }
 
@@ -126,6 +124,35 @@ public class OrderServices {
         else {
             System.out.println("Nothing ");
         }
+
+    }
+
+
+    public void repairOrder(String idOrder){
+        Optional<Ordering> ordering=orderRepository.findById(idOrder);
+        Ordering ordering1=ordering.get();
+
+        // check if the technician is attached to the order
+        if (ordering1.getPersonel()!=null){
+            ordering1.setRepaired(true);
+            orderRepository.save(ordering1);
+            System.out.println("Task Repaired");
+        }
+
+    }
+
+    // make a service which puts the order in the Finish DB
+
+    public FinishResponse putToFinish(String id, FinishRequest finishRequest){
+        Optional<Ordering> ordering=orderRepository.findById(id);
+        Ordering ordering1=ordering.get();
+        Finish finish=new Finish();
+        finish.setOrdering(ordering1);
+        finish.setMoney(finishRequest.getMoney());
+        finish.setDescription(finishRequest.getDescription());
+        finish.setCollect(false); // you need to be an acceptance to inform for collection
+        FinishResponse finishResponse=new FinishResponse(finishRepository.save(finish).getId());
+        return finishResponse;
 
     }
 

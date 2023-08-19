@@ -1,9 +1,6 @@
 package com.example.sabanet.controllers;
 
-import com.example.sabanet.models.FileName;
-import com.example.sabanet.models.OrderResponse;
-import com.example.sabanet.models.ProductRequest;
-import com.example.sabanet.models.ProductResponse;
+import com.example.sabanet.models.*;
 import com.example.sabanet.services.CustomerServices;
 import com.example.sabanet.services.OrderServices;
 import com.example.sabanet.services.PersonelServices;
@@ -68,6 +65,22 @@ public class MainController {
             @PathVariable String id2
     )throws Exception{
         orderServices.addTechnicToOrder(id1,id2);
+    }
+
+    @PutMapping("/repairOrder/{id}")
+    public void repairOrder(
+            @PathVariable String id
+    )throws Exception{
+        orderServices.repairOrder(id);
+    }
+
+    @PostMapping("/putToFinish/{id}")
+    public ResponseEntity<FinishResponse>putToFinish(
+            @PathVariable String id,
+            @RequestBody FinishRequest finishRequest
+    )throws Exception{
+        FinishResponse finishResponse=orderServices.putToFinish(id, finishRequest);
+        return  new ResponseEntity<>(finishResponse, HttpStatus.OK);
     }
 
 

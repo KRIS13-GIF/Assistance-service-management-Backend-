@@ -9,23 +9,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Ordering {
-
+public class Finish {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne
-    private Product product;
-
-    @ManyToOne
-    private Customer customer;
-
-    @ManyToOne
-    private Personel personel;
-
-    private int fileNumber;
-    private boolean repaired;
+    @OneToOne
+    private Ordering ordering;
+    private boolean collect; // only acceptance can call
+    private double money;
+    private String description;
 
 
 
