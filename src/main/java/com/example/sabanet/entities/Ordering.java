@@ -26,6 +26,7 @@ public class Ordering {
 
     private int fileNumber;
     private boolean repaired;
+    private boolean completed;
 
 
 

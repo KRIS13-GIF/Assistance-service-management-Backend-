@@ -83,6 +83,24 @@ public class MainController {
         return  new ResponseEntity<>(finishResponse, HttpStatus.OK);
     }
 
+    @PostMapping("/inform/{id1}/{id2}")
+    public String informCustomer(
+            @PathVariable String id1,
+            @PathVariable String id2
+    )throws Exception{
+
+        return  personelServices.informCustomer(id1,id2);
+
+    }
+
+    @PutMapping("/collect/{id1}/{id2}")
+    public void collectAndPay(
+            @PathVariable String id1,
+            @PathVariable String id2
+    )throws Exception{
+        customerServices.collectAndPay(id1, id2);
+    }
+
 
     }
 

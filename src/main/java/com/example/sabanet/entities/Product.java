@@ -39,7 +39,6 @@ public class Product {
     private int fileNum;
 
     private boolean accept; // acceptance
-    private boolean completed; // technicians
 
 
 

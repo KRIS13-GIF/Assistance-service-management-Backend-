@@ -7,10 +7,13 @@ import com.example.sabanet.models.FinishRequest;
 import com.example.sabanet.models.FinishResponse;
 import com.example.sabanet.models.OrderResponse;
 import com.example.sabanet.repositories.*;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,7 +69,6 @@ public class OrderServices {
         else
             customer.setNrFile(customer.getNrFile() + 1);
             customerRepository.save(customer);
-
             product.setAccept(true);
             product.setFileNum(customer.getNrFile());
             productRepository.save(product);
@@ -128,7 +130,7 @@ public class OrderServices {
     }
 
 
-    public void repairOrder(String idOrder){
+    public void repairOrder(String idOrder) throws Exception {
         Optional<Ordering> ordering=orderRepository.findById(idOrder);
         Ordering ordering1=ordering.get();
 
@@ -138,23 +140,41 @@ public class OrderServices {
             orderRepository.save(ordering1);
             System.out.println("Task Repaired");
         }
+        else {
+            throw new Exception("You need a technician to work on this task");
+        }
 
     }
 
-    // make a service which puts the order in the Finish DB
 
-    public FinishResponse putToFinish(String id, FinishRequest finishRequest){
+
+    public FinishResponse putToFinish(String id, FinishRequest finishRequest) throws Exception {
         Optional<Ordering> ordering=orderRepository.findById(id);
+        if (ordering.isEmpty()){
+            throw new Exception("The order id is not good");
+        }
         Ordering ordering1=ordering.get();
+
+        if (ordering1.isCompleted()){
+            throw new Exception("You can not put to finish this order ! It is already been put");
+        }
+
         Finish finish=new Finish();
         finish.setOrdering(ordering1);
         finish.setMoney(finishRequest.getMoney());
         finish.setDescription(finishRequest.getDescription());
         finish.setCollect(false); // you need to be an acceptance to inform for collection
+        finish.setNrFile(ordering1.getFileNumber());
+        finish.setRepaired(ordering1.isRepaired());
+        finish.setCustomer(ordering1.getCustomer());
+        ordering1.setCompleted(true);
+        orderRepository.save(ordering1);
         FinishResponse finishResponse=new FinishResponse(finishRepository.save(finish).getId());
         return finishResponse;
 
     }
+
+
 
 
 

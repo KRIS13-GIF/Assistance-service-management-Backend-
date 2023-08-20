@@ -26,4 +26,5 @@ public class Customer {
     private boolean intervent;
     private int nrFile;
 
+
 }

@@ -1,0 +1,17 @@
+Product Information:
+Serial Number: 1312000DenisDenis
+Brand: Apple
+Template: This is the best in the world right now
+Description: This phone has a problem with it touchscreen
+Date Purchase: 2023-08-20 00:00:00.0
+Expiry Date: 2023-08-23 00:00:00.0
+Notes: I need to have it ready as soon as possible
+Customer Name: Denis
+Full Address: Durres
+Telephone Number: 0683198745
+Email: denis@gmial.com
+Fiscal Code: 2001ALB
+VAT Number: 2010200
+PEC: 2000
+Accept: true
+File NO: 1
