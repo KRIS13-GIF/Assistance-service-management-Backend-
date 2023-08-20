@@ -4,10 +4,17 @@ package com.example.sabanet.services;
 import com.example.sabanet.entities.Customer;
 import com.example.sabanet.entities.Finish;
 import com.example.sabanet.entities.Product;
+import com.example.sabanet.models.OrderResponse;
+import com.example.sabanet.models.ProductResponse;
+import com.example.sabanet.models.UpdateRequestProduct;
 import com.example.sabanet.repositories.CustomerRepository;
 import com.example.sabanet.repositories.FinishRepository;
+import com.example.sabanet.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -15,13 +22,18 @@ public class CustomerServices {
 
     private final CustomerRepository customerRepository;
     private final FinishRepository finishRepository;
+    private final ProductRepository productRepository;
 
 
 
 
-    public CustomerServices(CustomerRepository customerRepository, FinishRepository finishRepository) {
+
+
+    public CustomerServices(CustomerRepository customerRepository, FinishRepository finishRepository, ProductRepository productRepository) {
         this.customerRepository = customerRepository;
         this.finishRepository = finishRepository;
+
+        this.productRepository = productRepository;
     }
 
     public void intervent(String id) throws Exception {
@@ -68,13 +80,50 @@ public class CustomerServices {
     }
 
 
-    public void consult(String id) throws Exception {
+    public ProductResponse consult(String id, UpdateRequestProduct updateRequestProduct) throws Exception {
         Optional<Customer> customer=customerRepository.findById(id);
         if (customer.isEmpty()){
             throw new Exception("This is not a correct Id for the user");
         }
 
+        List<Product>productList=productRepository.findProductByCustomerId(id);
+        Optional<Product> optionalProduct = productList.stream()
+                .filter(p -> p.getFileNum() == updateRequestProduct.getNr())
+                .findFirst();
 
+        Product product = optionalProduct.get();
+
+        if (product.isAccept()){
+            throw new Exception("You can not modify this product , because it is accepted");
+        }
+
+        if (updateRequestProduct.getSerialNo()!=null){
+            product.setSerialNo(updateRequestProduct.getSerialNo());
+        }
+        if (updateRequestProduct.getBrand()!=null){
+            product.setBrand(updateRequestProduct.getBrand());
+        }
+        if (updateRequestProduct.getTemplate()!=null){
+            product.setTemplate(updateRequestProduct.getTemplate());
+        }
+        if (updateRequestProduct.getDescription()!=null){
+            product.setDescription(updateRequestProduct.getDescription());
+        }
+        if (updateRequestProduct.getNotes()!=null){
+            product.setNotes(updateRequestProduct.getNotes());
+        }
+        if (updateRequestProduct.getPassword()!=null){
+            product.setPassword(updateRequestProduct.getPassword());
+        }
+        if (updateRequestProduct.getFullAddress()!=null){
+            product.setFullAddress(updateRequestProduct.getFullAddress());
+        }
+
+        Product savedProduct= productRepository.save(product);
+
+
+        ProductResponse productResponse=new ProductResponse(savedProduct.getId());
+        return productResponse;
     }
 
 

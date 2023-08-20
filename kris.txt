@@ -1,0 +1,17 @@
+Product Information:
+Serial Number: 1312002KrisBeka2
+Brand: Apple
+Template: This is the best in the world right now
+Description: This phone has a problem with it touchscreen... noooo
+Date Purchase: 2023-08-21 00:00:00.0
+Expiry Date: 2023-08-24 00:00:00.0
+Notes: I need to have it ready as soon as possible , ok?
+Customer Name: Kris
+Full Address: Durres1
+Telephone Number: 0673168487
+Email: krisbeka@yahoo.com
+Fiscal Code: 2002Alb
+VAT Number: 1312002
+PEC: 2002
+Accept: true
+File NO: 2

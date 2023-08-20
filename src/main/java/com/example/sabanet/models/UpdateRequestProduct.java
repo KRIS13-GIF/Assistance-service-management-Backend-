@@ -1,16 +1,14 @@
 package com.example.sabanet.models;
 
-
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
-public class ProductRequest {
-
+@AllArgsConstructor
+public class UpdateRequestProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -22,7 +20,7 @@ public class ProductRequest {
     private String password;
     private String fullAddress;
 
+    private String fileName;
 
-
-
+    private int nr;
 }

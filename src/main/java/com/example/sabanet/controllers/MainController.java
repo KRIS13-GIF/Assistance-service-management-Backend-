@@ -101,6 +101,15 @@ public class MainController {
         customerServices.collectAndPay(id1, id2);
     }
 
+    @PutMapping("/modify/{id}")
+    public ResponseEntity <ProductResponse>modifyProduct(
+            @PathVariable String id,
+            @RequestBody UpdateRequestProduct updateRequestProduct
+    )throws Exception{
+        ProductResponse productResponse=customerServices.consult(id, updateRequestProduct);
+        return new ResponseEntity<>(productResponse, HttpStatus.OK);
+    }
+
 
     }
 
