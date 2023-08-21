@@ -19,6 +19,9 @@ public class Finish {
     @ManyToOne
     private Customer customer;
 
+    @ManyToOne
+    private Personel personel;
+
     @OneToOne
     private Ordering ordering;
 

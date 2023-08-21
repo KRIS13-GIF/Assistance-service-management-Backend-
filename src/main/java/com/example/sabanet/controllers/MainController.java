@@ -2,11 +2,13 @@ package com.example.sabanet.controllers;
 
 import com.example.sabanet.models.*;
 import com.example.sabanet.services.*;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/sabanet")
@@ -32,16 +34,16 @@ public class MainController {
     @PostMapping("/intervent/{id}")
     public void intervent(
             @PathVariable String id
-    )throws Exception{
-      customerServices.intervent(id);
+    ) throws Exception {
+        customerServices.intervent(id);
     }
 
     @PostMapping("/createProduct/{id}")
-    public ResponseEntity<ProductResponse>createProduct(
+    public ResponseEntity<ProductResponse> createProduct(
             @PathVariable String id,
             @RequestBody ProductRequest productRequest
-            )throws Exception{
-        ProductResponse response= productServices.createProduct(id, productRequest);
+    ) throws Exception {
+        ProductResponse response = productServices.createProduct(id, productRequest);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -51,7 +53,7 @@ public class MainController {
             @PathVariable String id1, // for the personel to be acceptance
             @PathVariable String id2, // id of the product
             @RequestBody FileName fileName
-    )throws Exception {
+    ) throws Exception {
 
         if (personelServices.checkPersonelAcceptance(id1)) {
             OrderResponse orderResponse = orderServices.acceptProduct(id2, fileName);
@@ -65,42 +67,41 @@ public class MainController {
     public void addTechnic(
             @PathVariable String id1,
             @PathVariable String id2
-    )throws Exception{
-        orderServices.addTechnicToOrder(id1,id2);
+    ) throws Exception {
+        orderServices.addTechnicToOrder(id1, id2);
     }
 
     @PutMapping("/repairOrder/{id}")
     public void repairOrder(
             @PathVariable String id
-    )throws Exception{
+    ) throws Exception {
         orderServices.repairOrder(id);
     }
 
     @PutMapping("/notRepairingOrder/{id}")
     public void notRepairing(
             @PathVariable String id
-    )throws Exception{
+    ) throws Exception {
         orderServices.doNotRepair(id);
     }
 
 
-
     @PostMapping("/putToFinish/{id}")
-    public ResponseEntity<FinishResponse>putToFinish(
+    public ResponseEntity<FinishResponse> putToFinish(
             @PathVariable String id,
             @RequestBody FinishRequest finishRequest
-    )throws Exception{
-        FinishResponse finishResponse=orderServices.putToFinish(id, finishRequest);
-        return  new ResponseEntity<>(finishResponse, HttpStatus.OK);
+    ) throws Exception {
+        FinishResponse finishResponse = orderServices.putToFinish(id, finishRequest);
+        return new ResponseEntity<>(finishResponse, HttpStatus.OK);
     }
 
     @PostMapping("/inform/{id1}/{id2}")
     public String informCustomer(
             @PathVariable String id1,
             @PathVariable String id2
-    )throws Exception{
+    ) throws Exception {
 
-        return  personelServices.informCustomer(id1,id2);
+        return personelServices.informCustomer(id1, id2);
 
     }
 
@@ -108,16 +109,16 @@ public class MainController {
     public void collectAndPay(
             @PathVariable String id1,
             @PathVariable String id2
-    )throws Exception{
+    ) throws Exception {
         customerServices.collectAndPay(id1, id2);
     }
 
     @PutMapping("/modify/{id}")
-    public ResponseEntity <ProductResponse>modifyProduct(
+    public ResponseEntity<ProductResponse> modifyProduct(
             @PathVariable String id,
             @RequestBody UpdateRequestProduct updateRequestProduct
-    )throws Exception{
-        ProductResponse productResponse=customerServices.consult(id, updateRequestProduct);
+    ) throws Exception {
+        ProductResponse productResponse = customerServices.consult(id, updateRequestProduct);
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
@@ -126,18 +127,57 @@ public class MainController {
     public ResponseEntity<Integer> getTotalCompletedRepairs(
             @RequestParam String startDate,
             @RequestParam String endDate) {
-
         try {
             Date sqlStartDate = Date.valueOf(startDate);
             Date sqlEndDate = Date.valueOf(endDate);
-
             int totalCompletedRepairs = extractData.getTotalCompletedRepairs(sqlStartDate, sqlEndDate);
             return ResponseEntity.ok(totalCompletedRepairs);
         } catch (IllegalArgumentException e) {
-            // Handle invalid date format
             return ResponseEntity.badRequest().body(0);
         }
     }
 
+    @GetMapping("/report/notCompletedRepairs")
+    public ResponseEntity<Integer> getTotalCompletedNotRepaired(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        try {
+            Date sqlStartDate = Date.valueOf(startDate);
+            Date sqlEndDate = Date.valueOf(endDate);
+            int totalCompletedNotRepaired = extractData.getTotalCompletedNotRepairs(sqlStartDate, sqlEndDate);
+            return ResponseEntity.ok(totalCompletedNotRepaired);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(0);
+        }
     }
+
+    @GetMapping("/report/productionCost")
+    public ResponseEntity<Double> getTotalProductionCost(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        try {
+            Date sqlStartDate = Date.valueOf(startDate);
+            Date sqlEndDate = Date.valueOf(endDate);
+            Double totalProductionCost = extractData.getTotalProductionCost(sqlStartDate, sqlEndDate);
+            return ResponseEntity.ok(totalProductionCost);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(0.0);
+        }
+    }
+
+
+    @GetMapping("/report/repairsByTechnician")
+    public ResponseEntity<List<Object[]>> getRepairsByTechnician(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+        Date sqlStartDate = Date.valueOf(startDate);
+        Date sqlEndDate = Date.valueOf(endDate);
+
+        List<Object[]> repairsByTechnician = extractData.getRepairsByTechnician(sqlStartDate, sqlEndDate);
+        return ResponseEntity.ok(repairsByTechnician);
+    }
+
+
+
+}
 

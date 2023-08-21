@@ -198,6 +198,7 @@ public class OrderServices {
         finish.setNrFile(ordering1.getFileNumber());
         finish.setRepaired(ordering1.isRepaired());
         finish.setCustomer(ordering1.getCustomer());
+        finish.setPersonel(ordering1.getPersonel());
 
         LocalDate date =(Date.valueOf(LocalDate.now())).toLocalDate();// The date you want to check
         DateTimeFormatter formatter1=DateTimeFormatter.ofPattern("yyyy-MM-dd");
