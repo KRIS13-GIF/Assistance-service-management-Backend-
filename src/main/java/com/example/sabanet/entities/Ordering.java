@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -15,7 +17,7 @@ public class Ordering {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    @ManyToOne
+    @OneToOne
     private Product product;
 
     @ManyToOne
@@ -27,6 +29,8 @@ public class Ordering {
     private int fileNumber;
     private boolean repaired;
     private boolean completed;
+
+    private Date repNonRepDate;
 
 
 

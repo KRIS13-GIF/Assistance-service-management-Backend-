@@ -12,6 +12,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.sql.Date;
+
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,8 +52,8 @@ public class OrderServices {
     public OrderResponse acceptProduct(String id, FileName fileName) throws Exception {
         Product product=productServices.findProduct(id);
         if (product.isAccept()){
-            System.out.println("The product is already been accepted");
-            throw new Exception("The product is accedpted !");
+            //System.out.println("The product is already been accepted");
+            throw new Exception("The product is accepted !");
         }
 
 
@@ -109,11 +115,18 @@ public class OrderServices {
 
     }
 
-    public void addTechnicToOrder(String id1, String id2){
+    public void addTechnicToOrder(String id1, String id2) throws Exception {
         Optional<Ordering> order=orderRepository.findById(id1);
+        if (order.isEmpty()){
+            throw  new Exception("Invalid Id for the order");
+        }
         Ordering ordering=order.get();
 
         Optional<Personel> personel=personelRepository.findById(id2);
+        if (personel.isEmpty()){
+            throw new Exception("Invalid Id for the personel");
+        }
+
         Personel personel1=personel.get();
 
         System.out.println(personel1.getName());
@@ -131,13 +144,33 @@ public class OrderServices {
 
     public void repairOrder(String idOrder) throws Exception {
         Optional<Ordering> ordering=orderRepository.findById(idOrder);
+        if (ordering.isEmpty()){
+            throw new Exception("This orderId does not exist");
+        }
         Ordering ordering1=ordering.get();
-
         // check if the technician is attached to the order
         if (ordering1.getPersonel()!=null){
-            ordering1.setRepaired(true);
-            orderRepository.save(ordering1);
-            System.out.println("Task Repaired");
+
+            LocalDate startLocalDate = (Date.valueOf(ordering1.getProduct().getDatePurchase().toLocalDate())).toLocalDate();
+            Date startDate = Date.valueOf(startLocalDate);
+
+            LocalDate endLocalDate= (Date.valueOf(ordering1.getProduct().getExpiryDate().toLocalDate()).toLocalDate());
+            Date endDate = Date.valueOf(endLocalDate); // Convert Timestamp to Date
+
+
+            LocalDate date =(Date.valueOf(LocalDate.now())).toLocalDate();// The date you want to check
+            DateTimeFormatter formatter1=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            Date target= Date.valueOf(date.format(formatter1));
+
+            if (target.compareTo(startDate)>=0 && target.compareTo(endDate)<=0){
+                ordering1.setRepaired(true);
+                ordering1.setRepNonRepDate(target);
+                orderRepository.save(ordering1);
+                System.out.println("Task Repaired");
+            }
+            else {
+                throw new Exception("The Data of for this repairing is not between the desired values");
+            }
         }
         else {
             throw new Exception("You need a technician to work on this task");
@@ -157,7 +190,6 @@ public class OrderServices {
         if (ordering1.isCompleted()){
             throw new Exception("You can not put to finish this order ! It is already been put");
         }
-
         Finish finish=new Finish();
         finish.setOrdering(ordering1);
         finish.setMoney(finishRequest.getMoney());
@@ -166,10 +198,52 @@ public class OrderServices {
         finish.setNrFile(ordering1.getFileNumber());
         finish.setRepaired(ordering1.isRepaired());
         finish.setCustomer(ordering1.getCustomer());
+
+        LocalDate date =(Date.valueOf(LocalDate.now())).toLocalDate();// The date you want to check
+        DateTimeFormatter formatter1=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Date finishDate= Date.valueOf(date.format(formatter1));
+        finish.setFinishDate(finishDate);
+
         ordering1.setCompleted(true);
         orderRepository.save(ordering1);
+
         FinishResponse finishResponse=new FinishResponse(finishRepository.save(finish).getId());
         return finishResponse;
+
+    }
+
+
+    public void doNotRepair(String id) throws Exception {
+        Optional<Ordering> ordering=orderRepository.findById(id);
+        if (ordering.isEmpty()){
+            throw new Exception("The order id is not good");
+        }
+        Ordering ordering1=ordering.get();
+        // check if the technician is attached to the order
+        if (ordering1.getPersonel()!=null){
+
+            LocalDate startLocalDate = (Date.valueOf(ordering1.getProduct().getDatePurchase().toLocalDate())).toLocalDate();
+            Date startDate = Date.valueOf(startLocalDate);
+
+            LocalDate endLocalDate= (Date.valueOf(ordering1.getProduct().getExpiryDate().toLocalDate()).toLocalDate());
+            Date endDate = Date.valueOf(endLocalDate);
+
+
+            LocalDate date =(Date.valueOf(LocalDate.now())).toLocalDate();// The date you want to check
+            DateTimeFormatter formatter1=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            Date target= Date.valueOf(date.format(formatter1));
+
+            if (target.compareTo(startDate)>=0 && target.compareTo(endDate)<=0){
+                ordering1.setRepNonRepDate(target);
+                orderRepository.save(ordering1);
+            }
+            else {
+                throw new Exception("The Data of for this repairing is not between the desired values");
+            }
+        }
+        else {
+            throw new Exception("You need a technician to work on this task");
+        }
 
     }
 

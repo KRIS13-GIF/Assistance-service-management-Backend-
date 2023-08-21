@@ -1,13 +1,12 @@
 package com.example.sabanet.controllers;
 
 import com.example.sabanet.models.*;
-import com.example.sabanet.services.CustomerServices;
-import com.example.sabanet.services.OrderServices;
-import com.example.sabanet.services.PersonelServices;
-import com.example.sabanet.services.ProductServices;
+import com.example.sabanet.services.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.sql.Date;
 
 @RestController
 @RequestMapping("/api/sabanet")
@@ -19,12 +18,15 @@ public class MainController {
     private final OrderServices orderServices;
     private final PersonelServices personelServices;
 
+    private final ExtractData extractData;
 
-    public MainController(CustomerServices customerServices, ProductServices productServices, OrderServices orderServices, PersonelServices personelServices) {
+
+    public MainController(CustomerServices customerServices, ProductServices productServices, OrderServices orderServices, PersonelServices personelServices, ExtractData extractData) {
         this.customerServices = customerServices;
         this.productServices = productServices;
         this.orderServices = orderServices;
         this.personelServices = personelServices;
+        this.extractData = extractData;
     }
 
     @PostMapping("/intervent/{id}")
@@ -74,6 +76,15 @@ public class MainController {
         orderServices.repairOrder(id);
     }
 
+    @PutMapping("/notRepairingOrder/{id}")
+    public void notRepairing(
+            @PathVariable String id
+    )throws Exception{
+        orderServices.doNotRepair(id);
+    }
+
+
+
     @PostMapping("/putToFinish/{id}")
     public ResponseEntity<FinishResponse>putToFinish(
             @PathVariable String id,
@@ -110,6 +121,23 @@ public class MainController {
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
     }
 
+
+    @GetMapping("/report/completedRepairs")
+    public ResponseEntity<Integer> getTotalCompletedRepairs(
+            @RequestParam String startDate,
+            @RequestParam String endDate) {
+
+        try {
+            Date sqlStartDate = Date.valueOf(startDate);
+            Date sqlEndDate = Date.valueOf(endDate);
+
+            int totalCompletedRepairs = extractData.getTotalCompletedRepairs(sqlStartDate, sqlEndDate);
+            return ResponseEntity.ok(totalCompletedRepairs);
+        } catch (IllegalArgumentException e) {
+            // Handle invalid date format
+            return ResponseEntity.badRequest().body(0);
+        }
+    }
 
     }
 

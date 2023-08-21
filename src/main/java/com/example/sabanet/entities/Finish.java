@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Date;
+
 @Entity
 @Data
 @AllArgsConstructor
@@ -27,6 +29,8 @@ public class Finish {
     private int nrFile;
     private boolean repaired;
     private boolean ready;
+
+    private Date finishDate; // take when you click finish
 
 
 
