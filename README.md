@@ -51,5 +51,6 @@ With regard to reporting, extract the data relating to repairs:
 - cost of production over a period of time;
 - number of repairs processed by each technician over a period of time.
 
-![sabanet](https://github.com/KRIS13-GIF/Assistance-service-management-Backend-/assets/71281629/141a6ccf-f4eb-41e1-b70d-6d64be279427)
+
+![schema](https://github.com/KRIS13-GIF/Assistance-service-management-Backend-/assets/71281629/8e7ab986-2677-48f0-8ee9-ee451129b4e4)
 
