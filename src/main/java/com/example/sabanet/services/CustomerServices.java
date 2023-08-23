@@ -4,13 +4,14 @@ package com.example.sabanet.services;
 import com.example.sabanet.entities.Customer;
 import com.example.sabanet.entities.Finish;
 import com.example.sabanet.entities.Product;
-import com.example.sabanet.models.OrderResponse;
+
 import com.example.sabanet.models.ProductResponse;
 import com.example.sabanet.models.UpdateRequestProduct;
 import com.example.sabanet.repositories.CustomerRepository;
 import com.example.sabanet.repositories.FinishRepository;
 import com.example.sabanet.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
+
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -79,51 +80,92 @@ public class CustomerServices {
 
     }
 
+// make the consult function from the beginning
 
     public ProductResponse consult(String id, UpdateRequestProduct updateRequestProduct) throws Exception {
-        Optional<Customer> customer=customerRepository.findById(id);
-        if (customer.isEmpty()){
-            throw new Exception("This is not a correct Id for the user");
-        }
 
-        List<Product>productList=productRepository.findProductByCustomerId(id);
-        Optional<Product> optionalProduct = productList.stream()
-                .filter(p -> p.getFileNum() == updateRequestProduct.getNr())
-                .findFirst();
+        //Check both of them
+        if (updateRequestProduct.getNr() != 0 && updateRequestProduct.getSerialNo() != "") {
+            // you need first check the nr files available for this customer
+            List<Integer> fileNrList = productRepository.findFileNumByCustomerId(id);
 
-        Product product = optionalProduct.get();
-
-        if (product.isAccept()){
-            throw new Exception("You can not modify this product , because it is accepted");
-        }
-
-        if (updateRequestProduct.getSerialNo()!=null){
-            product.setSerialNo(updateRequestProduct.getSerialNo());
-        }
-        if (updateRequestProduct.getBrand()!=null){
-            product.setBrand(updateRequestProduct.getBrand());
-        }
-        if (updateRequestProduct.getTemplate()!=null){
-            product.setTemplate(updateRequestProduct.getTemplate());
-        }
-        if (updateRequestProduct.getDescription()!=null){
-            product.setDescription(updateRequestProduct.getDescription());
-        }
-        if (updateRequestProduct.getNotes()!=null){
-            product.setNotes(updateRequestProduct.getNotes());
-        }
-        if (updateRequestProduct.getPassword()!=null){
-            product.setPassword(updateRequestProduct.getPassword());
-        }
-        if (updateRequestProduct.getFullAddress()!=null){
-            product.setFullAddress(updateRequestProduct.getFullAddress());
-        }
-
-        Product savedProduct= productRepository.save(product);
+            if (fileNrList.contains(updateRequestProduct.getNr())) {
+                Product product = productRepository.findProductByFileNum(updateRequestProduct.getNr());
 
 
-        ProductResponse productResponse=new ProductResponse(savedProduct.getId());
-        return productResponse;
+                if (product.getSerialNo() != updateRequestProduct.getSerialNo()) {
+                    System.out.println("The current serial number for this is  " + product.getSerialNo());
+                    throw new Exception("Please enter a valid serial number");
+                }
+
+                System.out.println(product.getSerialNo());
+
+                if (!product.isAccept()) {
+                    throw new Exception("The product is not yet accepted !");
+                }
+                if (product.isProcess()) {
+                    throw new Exception("The product can not be updated because is in process phase");
+                }
+
+                if (updateRequestProduct.getBrand() != null) {
+                    product.setBrand(updateRequestProduct.getBrand());
+                }
+                if (updateRequestProduct.getTemplate() != null) {
+                    product.setTemplate(updateRequestProduct.getTemplate());
+                }
+                if (updateRequestProduct.getDescription() != null) {
+                    product.setDescription(updateRequestProduct.getDescription());
+                }
+                if (updateRequestProduct.getNotes() != null) {
+                    product.setNotes(updateRequestProduct.getNotes());
+                }
+                if (updateRequestProduct.getPassword() != null) {
+                    product.setPassword(updateRequestProduct.getPassword());
+                }
+                if (updateRequestProduct.getFullAddress() != null) {
+                    product.setFullAddress(updateRequestProduct.getFullAddress());
+                }
+
+                String productInfo = "Product Information:\n" +
+                        "Serial Number: " + product.getSerialNo() + "\n" +
+                        "Brand: " + product.getBrand() + "\n" +
+                        "Template: " + product.getTemplate() + "\n" +
+                        "Description: " + product.getDescription() + "\n" +
+                        "Date Purchase: " + product.getDatePurchase() + "\n" +
+                        "Expiry Date: " + product.getExpiryDate() + "\n" +
+                        "Notes: " + product.getNotes() + "\n" +
+                        "Customer Name: " + product.getCustomerName() + "\n" +
+                        "Full Address: " + product.getFullAddress() + "\n" +
+                        "Telephone Number: " + product.getTelephoneNumber() + "\n" +
+                        "Email: " + product.getEmail() + "\n" +
+                        "Fiscal Code: " + product.getFiscalCode() + "\n" +
+                        "VAT Number: " + product.getVatNumber() + "\n" +
+                        "PEC: " + product.getPec() + "\n" +
+                        "Accept: " + product.isAccept() + "\n" +
+                        "File NO: " + product.getFileNum();
+                try (FileWriter fileWriter = new FileWriter(product.getFilename())) {
+                    fileWriter.write(productInfo);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Product savedProduct = productRepository.save(product);
+                ProductResponse productResponse = new ProductResponse(savedProduct.getId());
+                return productResponse;
+            } else {
+                throw new Exception("Invalid number inserted ! This customer does not have this number");
+            }
+        }
+        else {
+            throw new Exception("Please enter values for the number case and the serial number");
+        }
+        }
+
+
+
+
+    public List<Integer> getFileNumByCustomerId(String customerId) {
+        return productRepository.findFileNumByCustomerId(customerId);
     }
 
 

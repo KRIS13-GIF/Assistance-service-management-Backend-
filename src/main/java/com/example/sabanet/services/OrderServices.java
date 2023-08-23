@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.Timestamp;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.sql.Date;
@@ -49,7 +49,7 @@ public class OrderServices {
         return orderRepository.findById(id).get();
     }
 
-    public OrderResponse acceptProduct(String id, FileName fileName) throws Exception {
+    public void acceptProduct(String id, FileName fileName) throws Exception {
         Product product=productServices.findProduct(id);
         if (product.isAccept()){
             //System.out.println("The product is already been accepted");
@@ -58,27 +58,19 @@ public class OrderServices {
 
 
         Customer customer=customerServices.findCustomer(product.getCustomer().getId());
-
-
-
         // Check if the intervention has been done
-
         if (customerRepository.existsByInterventIsFalseAndId(customer.getId())){
-
             throw new Exception("You can not make an order if you have not done previously the intervention");
             //System.out.println("You can not make an order if you have not done previously the intervention");
             //System.out.println(customer);
-
         }
-
         else
             customer.setNrFile(customer.getNrFile() + 1);
             customerRepository.save(customer);
             product.setAccept(true);
             product.setFileNum(customer.getNrFile());
+            product.setFilename(fileName.getName());
             productRepository.save(product);
-
-
             String productInfo = "Product Information:\n" +
                     "Serial Number: " + product.getSerialNo() + "\n" +
                     "Brand: " + product.getBrand() + "\n" +
@@ -96,48 +88,11 @@ public class OrderServices {
                     "PEC: " + product.getPec() + "\n" +
                     "Accept: " + product.isAccept() + "\n" +
                     "File NO: " + product.getFileNum();
-
-            try (FileWriter fileWriter = new FileWriter(fileName.getName())) {
+            try (FileWriter fileWriter = new FileWriter(product.getFilename())) {
                 fileWriter.write(productInfo);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            Ordering order = new Ordering();
-            order.setCustomer(product.getCustomer());
-            order.setProduct(product);
-            order.setFileNumber(customer.getNrFile());
-
-
-            Ordering savedOrder = orderRepository.save(order);
-            OrderResponse response = new OrderResponse(savedOrder.getId());
-            return response;
-
-    }
-
-    public void addTechnicToOrder(String id1, String id2) throws Exception {
-        Optional<Ordering> order=orderRepository.findById(id1);
-        if (order.isEmpty()){
-            throw  new Exception("Invalid Id for the order");
-        }
-        Ordering ordering=order.get();
-
-        Optional<Personel> personel=personelRepository.findById(id2);
-        if (personel.isEmpty()){
-            throw new Exception("Invalid Id for the personel");
-        }
-
-        Personel personel1=personel.get();
-
-        System.out.println(personel1.getName());
-        if (personel1.getType()== PersonelType.TECHNICIANS) {
-            ordering.setPersonel(personel1);
-            orderRepository.save(ordering);
-            System.out.println("Technic added to order");
-        }
-        else {
-            System.out.println("Nothing ");
-        }
 
     }
 
@@ -246,6 +201,15 @@ public class OrderServices {
             throw new Exception("You need a technician to work on this task");
         }
 
+    }
+
+
+    public List <Ordering>getAllOrdersByCustomer(String id) throws Exception {
+        List<Ordering>orderingList=orderRepository.findAllByCustomerId(id);
+        if (orderingList.isEmpty()){
+            throw new Exception("There are no orders for this id");
+        }
+        return orderingList;
     }
 
 

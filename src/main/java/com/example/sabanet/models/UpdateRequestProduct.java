@@ -20,7 +20,5 @@ public class UpdateRequestProduct {
     private String password;
     private String fullAddress;
 
-    private String fileName;
-
     private int nr;
 }

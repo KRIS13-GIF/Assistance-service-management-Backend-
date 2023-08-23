@@ -3,8 +3,10 @@ import com.example.sabanet.entities.Customer;
 import com.example.sabanet.entities.Product;
 import com.example.sabanet.models.ProductRequest;
 import com.example.sabanet.models.ProductResponse;
+import com.example.sabanet.repositories.CustomerRepository;
 import com.example.sabanet.repositories.ProductRepository;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -15,12 +17,15 @@ import java.time.format.DateTimeFormatter;
 @Service
 public class ProductServices {
 
-    private final CustomerServices customerServices;
+   private final  CustomerServices customerServices;
+
+    private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
 
-    public ProductServices(CustomerServices customerServices, ProductRepository productRepository) {
+    public ProductServices(CustomerServices customerServices, CustomerRepository customerRepository, ProductRepository productRepository) {
         this.customerServices = customerServices;
+        this.customerRepository = customerRepository;
         this.productRepository = productRepository;
     }
 
@@ -52,9 +57,13 @@ public class ProductServices {
         product.setFiscalCode(customer.getFiscalCode());
         product.setVatNumber(customer.getVatNumber());
         product.setPec(customer.getPec());
-        product.setFileNum(customer.getNrFile()+1);
+        product.setFileNum(0); // if we have many files , then it takes the file nr of the previous one. Initiliaze all with zeros than
+        // in the acceptance phase you can modify the fileNumber.
         product.setCustomer(customer);
         product.setAccept(false);
+
+
+
         return new ProductResponse(productRepository.save(product).getId());
     }
 

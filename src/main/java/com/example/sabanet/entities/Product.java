@@ -37,8 +37,11 @@ public class Product {
     private String vatNumber;
     private String pec;
     private int fileNum;
+    private String filename;
+
 
     private boolean accept; // acceptance
+    private boolean process;// go to order
 
 
 

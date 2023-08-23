@@ -1,0 +1,17 @@
+Product Information:
+Serial Number: 156987Mateo123
+Brand: Nokia
+Template: This phone is one of the latest one
+Description: This phone has a problem with its camera
+Date Purchase: 2023-08-22
+Expiry Date: 2023-08-25
+Notes: I need to have it ready as soon as possible
+Customer Name: Mateo
+Full Address: Tirana
+Telephone Number: 0696354786
+Email: mateobosi@email.com
+Fiscal Code: 2000ALB
+VAT Number: 13156987
+PEC: 2001
+Accept: true
+File NO: 1

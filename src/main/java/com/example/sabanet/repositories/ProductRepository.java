@@ -3,6 +3,7 @@ package com.example.sabanet.repositories;
 import com.example.sabanet.entities.Customer;
 import com.example.sabanet.entities.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -11,7 +12,12 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, String> {
 
 
-    List<Product>findProductByCustomerId(String id);
+    Product findProductByFileNum(int nr);
+
+    @Query(value = "SELECT p.file_num FROM Product p WHERE p.customer_id = ?", nativeQuery = true)
+    List<Integer> findFileNumByCustomerId(String customerId);
+
+
 
 
 

@@ -1,5 +1,6 @@
 package com.example.sabanet.controllers;
 
+import com.example.sabanet.entities.Ordering;
 import com.example.sabanet.models.*;
 import com.example.sabanet.services.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -38,6 +39,8 @@ public class MainController {
         customerServices.intervent(id);
     }
 
+
+
     @PostMapping("/createProduct/{id}")
     public ResponseEntity<ProductResponse> createProduct(
             @PathVariable String id,
@@ -49,27 +52,20 @@ public class MainController {
 
     @PostMapping("/acceptProduct/{id1}/{id2}")
 
-    public ResponseEntity<OrderResponse> acceptOrder(
+    public void acceptOrder(
             @PathVariable String id1, // for the personel to be acceptance
             @PathVariable String id2, // id of the product
             @RequestBody FileName fileName
     ) throws Exception {
 
         if (personelServices.checkPersonelAcceptance(id1)) {
-            OrderResponse orderResponse = orderServices.acceptProduct(id2, fileName);
-            return new ResponseEntity<>(orderResponse, HttpStatus.OK);
+         orderServices.acceptProduct(id2, fileName);
         }
-        return null;
+
 
     }
 
-    @PutMapping("/addTechnic/{id1}/{id2}")
-    public void addTechnic(
-            @PathVariable String id1,
-            @PathVariable String id2
-    ) throws Exception {
-        orderServices.addTechnicToOrder(id1, id2);
-    }
+
 
     @PutMapping("/repairOrder/{id}")
     public void repairOrder(
@@ -102,8 +98,17 @@ public class MainController {
     ) throws Exception {
 
         return personelServices.informCustomer(id1, id2);
-
     }
+
+    @PostMapping("/putProductToOrder/{id1}/{id2}")
+    public ResponseEntity<OrderResponse>putOrder(
+            @PathVariable String id1,
+            @PathVariable String id2
+    )throws Exception{
+        OrderResponse orderResponse=personelServices.putProductToOrder(id1, id2);
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
+    }
+
 
     @PutMapping("/collect/{id1}/{id2}")
     public void collectAndPay(
@@ -113,7 +118,8 @@ public class MainController {
         customerServices.collectAndPay(id1, id2);
     }
 
-    @PutMapping("/modify/{id}")
+
+    @PutMapping("/consult/{id}")
     public ResponseEntity<ProductResponse> modifyProduct(
             @PathVariable String id,
             @RequestBody UpdateRequestProduct updateRequestProduct
@@ -176,6 +182,25 @@ public class MainController {
         List<Object[]> repairsByTechnician = extractData.getRepairsByTechnician(sqlStartDate, sqlEndDate);
         return ResponseEntity.ok(repairsByTechnician);
     }
+
+    @GetMapping("/getOrdersByCustomer/{id}")
+    public List <Ordering>getOrderByCustomerId(
+            @PathVariable String id
+    )throws Exception{
+        return orderServices.getAllOrdersByCustomer(id);
+    }
+
+    @GetMapping("/products/fileNumByCustomerId/{id}")
+    public List<Integer>getFileNumByCustomerId(
+            @PathVariable String id
+    )throws Exception{
+        return customerServices.getFileNumByCustomerId(id);
+    }
+
+
+
+
+
 
 
 

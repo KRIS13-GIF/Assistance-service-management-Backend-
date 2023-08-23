@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface OrderRepository extends JpaRepository<Ordering, String> {
 
+    List<Ordering>findAllByCustomerId(String id);
 
 
 
