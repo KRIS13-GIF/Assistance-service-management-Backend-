@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -85,15 +86,15 @@ public class CustomerServices {
     public ProductResponse consult(String id, UpdateRequestProduct updateRequestProduct) throws Exception {
 
         //Check both of them
-        if (updateRequestProduct.getNr() != 0 && updateRequestProduct.getSerialNo() != "") {
+        if (updateRequestProduct.getNr() != 0 && !Objects.equals(updateRequestProduct.getSerialNo(), "")) {
             // you need first check the nr files available for this customer
             List<Integer> fileNrList = productRepository.findFileNumByCustomerId(id);
 
             if (fileNrList.contains(updateRequestProduct.getNr())) {
-                Product product = productRepository.findProductByFileNum(updateRequestProduct.getNr());
+                Product product = productRepository.findProductByFileNumAndCustomerId(updateRequestProduct.getNr(), id);
 
 
-                if (product.getSerialNo() != updateRequestProduct.getSerialNo()) {
+                if (!Objects.equals(product.getSerialNo(), updateRequestProduct.getSerialNo())) {
                     System.out.println("The current serial number for this is  " + product.getSerialNo());
                     throw new Exception("Please enter a valid serial number");
                 }
@@ -150,8 +151,7 @@ public class CustomerServices {
                 }
 
                 Product savedProduct = productRepository.save(product);
-                ProductResponse productResponse = new ProductResponse(savedProduct.getId());
-                return productResponse;
+                return new ProductResponse(savedProduct.getId());
             } else {
                 throw new Exception("Invalid number inserted ! This customer does not have this number");
             }

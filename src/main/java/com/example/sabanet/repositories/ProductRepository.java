@@ -12,7 +12,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, String> {
 
 
-    Product findProductByFileNum(int nr);
+    Product findProductByFileNumAndCustomerId(int nr, String id);
 
     @Query(value = "SELECT p.file_num FROM Product p WHERE p.customer_id = ?", nativeQuery = true)
     List<Integer> findFileNumByCustomerId(String customerId);
